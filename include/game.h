@@ -13,6 +13,14 @@ enum GameState {
     GAME_WIN
 };
 
+// collision directions
+enum Direction {
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT
+};
+
 // Initial size of the player paddle
 const glm::vec2 PLAYER_SIZE(150.0f, 25.0f);
 
@@ -24,6 +32,10 @@ const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 
 // Radius of the ball object
 const float BALL_RADIUS = 12.5f;
+
+// Defines a Collision typedef that represents collision data
+// a tuple to store: whether collide, collide direction, R vector
+typedef std::tuple<bool, Direction, glm::vec2> Collision; 
 
 // class for game set-up
 class Game
@@ -46,6 +58,10 @@ class Game
         void Update(float dt);
         void Render();
         void DoCollisions();
+        
+        // reset
+        void ResetLevel();
+        void ResetPlayer();
 };
 
 #endif
