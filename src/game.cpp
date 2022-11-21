@@ -7,6 +7,7 @@
 SpriteRenderer *renderer;
 GameObject *player;
 Ball *ball; 
+ParticleGenerator *particles;
 
 
 Game::Game(unsigned int width, unsigned int height): State(GAME_ACTIVE), Keys(), Width(width), Height(height){}
@@ -20,13 +21,15 @@ Game::~Game() {
 void Game::Init() {
     // load shaders
     ResourceManager::LoadShader("shaders/sprite.vs", "shaders/sprite.frag", nullptr, "sprite");
-
+    ResourceManager::LoadShader("shaders/particle.vs", "shaders/particle.frag", nullptr, "particle");
+    
     // configure shaders
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width), 
         static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
     
     ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+    ResourceManager::GetShader("particle").Use().SetMatrix4("projection", projection);
 
     // set render-specific controls
     Shader myShader;
@@ -39,6 +42,7 @@ void Game::Init() {
     ResourceManager::LoadTexture("textures/block.png", false, "block");
     ResourceManager::LoadTexture("textures/block_solid.png", false, "block_solid");
     ResourceManager::LoadTexture("textures/paddle.png", true, "paddle");
+    ResourceManager::LoadTexture("textures/star.png", true, "particle");
 
     // load levels
     // 4 levels:
@@ -72,6 +76,12 @@ void Game::Init() {
     // configure ball objects
     glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
     ball = new Ball(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("face"));
+
+    particles = new ParticleGenerator(
+        ResourceManager::GetShader("particle"), 
+        ResourceManager::GetTexture("particle"), 
+        500
+    );
 }
 
 void Game::Update(float dt) {
@@ -86,6 +96,8 @@ void Game::Update(float dt) {
         this->ResetLevel();
         this->ResetPlayer();
     }
+
+    particles->Update(dt, *ball, 2, glm::vec2(ball->Radius / 2.0f));
 }
 
 void Game::ProcessInput(float dt) {
@@ -134,6 +146,9 @@ void Game::Render() {
 
         // draw player
         player->Draw(*renderer);
+
+        // draw particles	
+        particles->Draw();
 
         // draw ball
         ball->Draw(*renderer);
