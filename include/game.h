@@ -7,6 +7,7 @@
 #include "GameLevel.h"
 #include "ball.h"
 #include "ParticleGenerator.h"
+#include "PostProcessor.h"
 
 enum GameState {
     GAME_ACTIVE,
