@@ -21,6 +21,7 @@ class Ball : public GameObject
 
         float Radius;
         bool Stuck; 
+        bool Sticky, PassThrough;
 };
 
 #endif

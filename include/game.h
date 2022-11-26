@@ -8,6 +8,7 @@
 #include "ball.h"
 #include "ParticleGenerator.h"
 #include "PostProcessor.h"
+#include "PowerUp.h"
 
 enum GameState {
     GAME_ACTIVE,
@@ -51,6 +52,8 @@ class Game
         std::vector<GameLevel> Levels;
         unsigned int           Level;
 
+        std::vector<PowerUp>    PowerUps;
+
         // constructor & deconstructor
         Game(unsigned int width, unsigned int height);
         ~Game();
@@ -64,6 +67,10 @@ class Game
         // reset
         void ResetLevel();
         void ResetPlayer();
+
+        // powerups
+        void SpawnPowerUps(GameObject &block);
+        void UpdatePowerUps(float dt);
 };
 
 #endif
