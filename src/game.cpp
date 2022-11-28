@@ -97,6 +97,7 @@ void Game::Init() {
     );
 
     effects = new PostProcessor(ResourceManager::GetShader("postprocessing"), this->Width*2, this->Height*2); // need to double
+
 }
 
 void Game::Update(float dt) {
@@ -118,12 +119,58 @@ void Game::Update(float dt) {
 
     // check loss condition, reset the game
     if (ball->Position.y >= this->Height){
+        this->Lives --;
+        if (this->Lives == 0){
+            this->ResetLevel();
+            this->ResetPlayer();
+        }
+        this->ResetPlayer();
+    }
+
+    // check win condition
+    if (this->State == GAME_ACTIVE && this->Levels[this->Level].IsCompleted())
+    {
         this->ResetLevel();
         this->ResetPlayer();
+        effects->Chaos = true;
+        this->State = GAME_WIN;
     }
 }
 
 void Game::ProcessInput(float dt) {
+
+    if (this->State == GAME_MENU)
+    {
+        if (this->Keys[GLFW_KEY_ENTER] && !this->KeysProcessed[GLFW_KEY_ENTER])
+        {
+            this->State = GAME_ACTIVE;
+            this->KeysProcessed[GLFW_KEY_ENTER] = true;
+        }
+        if (this->Keys[GLFW_KEY_W] && !this->KeysProcessed[GLFW_KEY_W])
+        {
+            this->Level = (this->Level + 1) % 4;
+            this->KeysProcessed[GLFW_KEY_W] = true;
+        }
+        if (this->Keys[GLFW_KEY_S] && !this->KeysProcessed[GLFW_KEY_S])
+        {
+            if (this->Level > 0)
+                --this->Level;
+            else
+                this->Level = 3;
+            this->KeysProcessed[GLFW_KEY_S] = true;
+        }
+    }
+
+    if (this->State == GAME_WIN)
+    {
+        if (this->Keys[GLFW_KEY_ENTER])
+        {
+            this->KeysProcessed[GLFW_KEY_ENTER] = true;
+            effects->Chaos = false;
+            this->State = GAME_MENU;
+        }
+    }
+
     if (this->State == GAME_ACTIVE)
     {
         float velocity = PLAYER_VELOCITY * dt;
@@ -150,6 +197,7 @@ void Game::ProcessInput(float dt) {
             ball->Stuck = false;
         }
     }
+
 }
 
 void Game::Render() {
@@ -157,7 +205,7 @@ void Game::Render() {
     // myTexture = ResourceManager::GetTexture("face");
     // renderer->DrawSprite(myTexture, glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    if(this->State == GAME_ACTIVE)
+    if(this->State == GAME_ACTIVE || this->State == GAME_MENU || this->State == GAME_WIN)
     {   
         effects->BeginRender();
 
@@ -187,6 +235,12 @@ void Game::Render() {
 
         effects->EndRender();
         effects->Render(glfwGetTime());
+    }
+    if (this->State == GAME_MENU)
+    {
+    }
+    if (this->State == GAME_WIN)
+    {
     }
 }
 
@@ -394,6 +448,8 @@ void Game::ResetLevel()
         this->Levels[2].Load("levels/three.lvl", this->Width, this->Height / 2);
     else if (this->Level == 3)
         this->Levels[3].Load("levels/four.lvl", this->Width, this->Height / 2);
+
+    this->Lives = 3;
 }
 
 void Game::ResetPlayer()

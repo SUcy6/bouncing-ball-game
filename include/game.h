@@ -47,12 +47,15 @@ class Game
         GameState State;
 
         bool Keys[1024]; // user input
+        bool KeysProcessed[1024];
         unsigned int Width, Height; // game board size
 
         std::vector<GameLevel> Levels;
         unsigned int           Level;
 
         std::vector<PowerUp>    PowerUps;
+
+        unsigned int Lives;
 
         // constructor & deconstructor
         Game(unsigned int width, unsigned int height);

@@ -2,5 +2,6 @@
     "files.associations": {
         "iosfwd": "cpp",
         "new": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/thirdparty/old/glm/test/external/gli"
 }
